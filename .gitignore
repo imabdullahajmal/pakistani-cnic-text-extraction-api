@@ -1,0 +1,71 @@
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Test and coverage
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+
+# Type checkers / caches
+.mypy_cache/
+.pyre/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Notebook outputs
+*.nbconvert.ipynb
+
+# Common image results and output folders
+runs/
+detect/
+results_*.jpg
+results_*.png
+
+# Data and datasets (uncomment if you store datasets outside git)
+# data/
+# datasets/
+dataset.zip
+
+# Environment files
+.env
+.env.*
+
+# IDE project files
+.ropeproject/
+
+# Optional: ignore model weights (uncomment if you don't want to track .pt files)
+# *.pt

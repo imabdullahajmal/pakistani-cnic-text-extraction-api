@@ -1,0 +1,29 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+pydantic-settings==2.0.0
+python-multipart==0.0.9
+
+# Core image + ML libs (tested together)
+# Use OpenCV 4.8 series which is compatible with numpy<2.0
+opencv-python==4.8.1.78
+numpy<2.0
+ultralytics==8.4.14
+
+# PaddleOCR (CPU build). If you want GPU acceleration for PaddleOCR,
+# install a matching paddlepaddle-gpu wheel manually following
+# https://www.paddlepaddle.org.cn/install/quick
+paddlepaddle==2.6.2
+paddleocr==2.7.3
+
+# HTTP client used by tests and examples
+requests==2.31.0
+
+# PyTorch (used by YOLO/ultralytics). GPU builds vary by CUDA version.
+# Install the appropriate torch + torchvision wheel for your CUDA. Example for CUDA 12.4:
+# pip install torch==2.5.1+cu124 torchvision==0.20.1+cu124 -f https://download.pytorch.org/whl/cu124/torch_stable.html
+# If you prefer CPU-only, install plain torch from PyPI.
+# torch==2.5.1+cu124
+# torchvision==0.20.1+cu124
+
+# Optional (Windows) helper for cuDNN if you install a GPU paddle build via pip packages:
+# nvidia-cudnn-cu12

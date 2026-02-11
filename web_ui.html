@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CNIC OCR UI</title>
+  <style>
+    body { font-family: Inter, Arial, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    header { margin-bottom: 12px }
+    .preview { max-width: 320px; max-height: 240px; display:block; margin:8px 0; border:1px solid #ddd }
+    #result { border:1px solid #eee; padding:12px; min-height:160px; background:#fff }
+    .controls { margin-top:12px }
+    button { padding:8px 12px }
+    textarea { width:100%; height:120px }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>CNIC OCR — Simple UI</h1>
+    <p>Upload a CNIC image and click <strong>Extract</strong>. The extracted fields are displayed as Markdown.</p>
+  </header>
+
+  <form id="uploadForm">
+    <input id="fileInput" name="file" type="file" accept="image/*" required />
+    <img id="preview" class="preview" alt="preview" style="display:none" />
+    <div class="controls">
+      <button id="extractBtn" type="submit">Extract</button>
+      <button id="clearBtn" type="button">Clear</button>
+      <button id="downloadBtn" type="button">Download MD</button>
+    </div>
+  </form>
+
+  <h3>Markdown Preview</h3>
+  <div id="result">No result yet.</div>
+
+  <h3>Structured JSON</h3>
+  <textarea id="rawTexts" readonly placeholder="Extracted JSON will appear here"></textarea>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const form = document.getElementById('uploadForm');
+    const result = document.getElementById('result');
+    const rawTexts = document.getElementById('rawTexts');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    fileInput.addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) { preview.style.display = 'none'; return }
+      const url = URL.createObjectURL(f);
+      preview.src = url; preview.style.display = 'block';
+    });
+
+    clearBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      preview.src = '';
+      preview.style.display = 'none';
+      result.innerHTML = 'No result yet.';
+      rawTexts.value = '';
+    });
+
+    form.addEventListener('submit', async (evt) => {
+      evt.preventDefault();
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) return alert('Choose an image first');
+
+      result.innerHTML = 'Processing...';
+      rawTexts.value = '';
+
+      try {
+        const fd = new FormData();
+        fd.append('file', f);
+
+        const resp = await fetch('/api/v1/extract-json', { method: 'POST', body: fd });
+        if (!resp.ok) {
+          const txt = await resp.text();
+          result.innerText = 'Error: ' + resp.status + '\n' + txt;
+          return;
+        }
+
+        const json = await resp.json();
+        if (!json.success) {
+          result.innerText = json.message || 'Extraction failed';
+          return;
+        }
+
+        // Build markdown from structured data
+        const data = json.data || {};
+        const mdLines = [];
+        mdLines.push('# CNIC Data');
+        mdLines.push('');
+        
+        const fields = [
+          ['Name', data.name],
+          ['Father Name', data.father_name],
+          ['Gender', data.gender],
+          ['Country of Stay', data.country_of_stay],
+          ['Identity Number', data.identity_number],
+          ['Date of Birth', data.date_of_birth],
+          ['Date of Issue', data.date_of_issue],
+          ['Date of Expiry', data.date_of_expiry],
+        ];
+        
+        fields.forEach(([label, value]) => {
+          mdLines.push(`**${label}:** ${value || '_Not detected_'}`);
+          mdLines.push('');
+        });
+
+        const md = mdLines.join('\n');
+        result.innerHTML = marked.parse(md);
+        
+        // Show raw JSON for debugging
+        rawTexts.value = JSON.stringify(data, null, 2);
+
+        downloadBtn.onclick = () => {
+          const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'cnic_extracted.md';
+          a.click();
+        };
+
+      } catch (err) {
+        console.error(err);
+        result.innerText = 'Unexpected error: ' + err;
+      }
+    });
+  </script>
+</body>
+</html>
