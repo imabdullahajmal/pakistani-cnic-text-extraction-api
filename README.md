@@ -101,7 +101,3 @@ If any required field is missing or clearly invalid, the endpoint responds with 
 - The parser is intentionally strict: it prioritizes labeled fields (e.g., lines containing "Name" or "Father") and falls back to standalone heuristics only if labeled values are missing. The API will reject images that do not provide all required fields to avoid returning incorrect data.
 
 For more detailed developer notes and troubleshooting steps, see `IMPLEMENTATION_GUIDE.md`.
-
----
-
-If you want I can also add a small `CONTRIBUTING.md` with a testing checklist.
